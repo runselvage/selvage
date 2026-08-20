@@ -6,7 +6,7 @@ AI-powered autonomous code implementation pipeline. Describe what you want — s
 
 ```bash
 # Install
-brew install runselvage/tap/selvage
+brew install runselvage/selvage/selvage
 
 # Run in any git repo
 cd my-project
@@ -32,7 +32,7 @@ You describe → Implementer codes → Verification runs → Reviewer checks →
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew install runselvage/tap/selvage
+brew install runselvage/selvage/selvage
 ```
 
 ### Direct download
@@ -53,9 +53,7 @@ sudo mv selvage /usr/local/bin/
 
 ### Go install
 
-```bash
-go install github.com/runselvage/selvage/cmd/selvage@latest
-```
+> **Note:** Not available yet. Use Homebrew or direct download.
 
 ## Requirements
 
