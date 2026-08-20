@@ -1,12 +1,12 @@
 # Selvage
 
-AI-powered autonomous code implementation pipeline. Describe what you want — selvage implements, verifies, and reviews it.
+Autonomous code implementation pipeline. Describe what you want — selvage implements, verifies, and reviews it.
 
 ## Quick Start
 
 ```bash
 # Install
-brew install runselvage/selvage/selvage
+brew install runselvage/selvage
 
 # Run in any git repo
 cd my-project
@@ -32,7 +32,7 @@ You describe → Implementer codes → Verification runs → Reviewer checks →
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew install runselvage/selvage/selvage
+brew install runselvage/selvage
 ```
 
 ### Direct download
