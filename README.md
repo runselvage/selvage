@@ -71,17 +71,9 @@ Selvage starts its project-scoped background service automatically; there is no 
 
 ## From request to reviewed branch
 
-```mermaid
-flowchart LR
-    A[Dashboard / CLI / MCP] --> B[Local Selvage runtime]
-    B --> C[Implement in an isolated Git worktree]
-    C --> D[Build and tests]
-    D --> E[Independent model review]
-    E -->|revise| C
-    E -->|approved| F[Reviewed branch and evidence]
-    F --> G{Human approval}
-    G --> H[Merge or PR]
-```
+[![Selvage architecture from request through implementation, verification, independent review, and human approval](assets/visuals/selvage-architecture-3200x1800.png)](assets/visuals/selvage-architecture-3200x1800.png)
+
+<p align="center"><sub>Local orchestration, independent review, and a human-owned shipping decision. Click the diagram for the full-resolution view.</sub></p>
 
 1. **Request:** submit a description, GitHub issue, plan, or MCP task.
 2. **Implement:** a configured implementation model works on the change in an isolated Git worktree.
