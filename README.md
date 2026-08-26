@@ -34,8 +34,6 @@ Selvage is an autonomous code implementation pipeline—not merely a verifier or
 
 ## Quick start
 
-<!-- RELEASE GATE: Do not merge this Homebrew instruction until the public tap has real SHA256 values and a clean brew install has passed. -->
-
 Install from the public Homebrew tap:
 
 ```bash
@@ -172,8 +170,6 @@ Available tools:
 ## Install
 
 ### Homebrew (macOS and Linux)
-
-<!-- RELEASE GATE: Formula/selvage.rb must contain release checksums before this README is merged. -->
 
 ```bash
 brew install runselvage/selvage/selvage
