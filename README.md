@@ -1,152 +1,256 @@
-# Selvage
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/selvage-symbol-colour-on-dark.svg">
+    <img src="assets/brand/selvage-symbol-colour.svg" width="116" alt="Selvage">
+  </picture>
+</p>
 
-Autonomous code implementation pipeline. Describe what you want — selvage implements, verifies, and reviews it.
+<h1 align="center">Selvage</h1>
 
-## Quick Start
+<p align="center"><strong>Vibe coding that survives real engineering.</strong></p>
+
+<p align="center">
+  Describe what you want. Selvage implements it locally, runs your build and tests,
+  routes the change to an independent model for review, and leaves you with a
+  reviewed, test-backed branch ready for your approval.
+</p>
+
+<p align="center">
+  <a href="#quick-start"><strong>Install Selvage</strong></a> ·
+  <a href="#from-request-to-reviewed-branch"><strong>See how it works</strong></a>
+</p>
+
+<p align="center"><strong>Local-first · Use your AI subscriptions · Independent review · You decide what ships</strong></p>
+
+---
+
+Selvage is an autonomous code implementation pipeline—not merely a verifier or another chat window. It coordinates the work from request to reviewed branch while keeping the engineering controls you already rely on:
+
+- **It implements the change.** An agent works in an isolated Git worktree instead of editing your checkout.
+- **It proves what happened.** Builds, tests, commits, findings, usage, and decisions are captured as evidence.
+- **It separates implementation from review.** Reviewer identity is recorded, and same-model self-review is not treated as independent review.
+- **It uses tools you already pay for.** Bring authenticated Claude Code, Codex, Kiro CLI, or OpenCode installations; Selvage does not resell model tokens.
+- **It leaves publication to you.** A human approval gate owns the final decision.
+
+## Quick start
+
+<!-- RELEASE GATE: Do not merge this Homebrew instruction until the public tap has real SHA256 values and a clean brew install has passed. -->
+
+Install from the public Homebrew tap:
 
 ```bash
-# Install
-brew install runselvage/selvage
+brew install runselvage/selvage/selvage
+```
 
-# Run in any git repo
-cd my-project
+Initialize Selvage inside a Git repository. The setup flow detects installed AI tools, helps select implementation and review tools, and proposes project-specific verification commands.
+
+```bash
+cd /path/to/your-project
+selvage init
+```
+
+Start the local web dashboard:
+
+```bash
+selvage ui
+```
+
+Open the printed `http://127.0.0.1:<port>` address. Leave the dashboard running, then submit work from another terminal:
+
+```bash
 selvage run "add retry logic to the HTTP client with exponential backoff"
 ```
 
-That's it. Selvage auto-detects your project, picks the best available AI tools, implements the change, runs your tests, and lands the result on a local branch.
-
-## How It Works
-
-```
-You describe → Implementer codes → Verification runs → Reviewer checks → Lands on branch
-```
-
-1. **You describe** what you want (CLI or MCP)
-2. **Implementer** writes the code in an isolated worktree
-3. **Verification** runs build + tests automatically
-4. **Reviewer** (different AI model) checks for correctness
-5. **Result** lands on a local branch for you to merge
-
-## Install
-
-### Homebrew (macOS/Linux)
+`run` submits asynchronously. Follow the same task in the browser, or stream its activity in a terminal:
 
 ```bash
-brew install runselvage/selvage
+selvage watch
 ```
 
-### Direct download
+Selvage starts its project-scoped background service automatically; there is no daemon ceremony in the normal workflow.
 
-```bash
-# macOS Apple Silicon
-curl -L https://github.com/runselvage/selvage/releases/latest/download/selvage-darwin-arm64.tar.gz | tar xz
-sudo mv selvage /usr/local/bin/
+## From request to reviewed branch
 
-# macOS Intel
-curl -L https://github.com/runselvage/selvage/releases/latest/download/selvage-darwin-amd64.tar.gz | tar xz
-sudo mv selvage /usr/local/bin/
-
-# Linux x86_64
-curl -L https://github.com/runselvage/selvage/releases/latest/download/selvage-linux-amd64.tar.gz | tar xz
-sudo mv selvage /usr/local/bin/
+```mermaid
+flowchart LR
+    A[Dashboard / CLI / MCP] --> B[Local Selvage runtime]
+    B --> C[Implement in an isolated Git worktree]
+    C --> D[Build and tests]
+    D --> E[Independent model review]
+    E -->|revise| C
+    E -->|approved| F[Reviewed branch and evidence]
+    F --> G{Human approval}
+    G --> H[Merge or PR]
 ```
 
-### Go install
+1. **Request:** submit a description, GitHub issue, plan, or MCP task.
+2. **Implement:** a configured implementation model works on the change in an isolated Git worktree.
+3. **Verify:** configured build and test commands run against the resulting commit.
+4. **Review:** an independently identified model evaluates the change and verification results.
+5. **Revise:** review findings return for another implementation and verification pass.
+6. **Approve:** the dashboard presents the reviewed branch and evidence. You decide what ships.
 
-> **Note:** Not available yet. Use Homebrew or direct download.
+## Why independent review matters
 
-## Requirements
+A model saying its own patch looks correct is useful feedback, but it is not an independent control. Selvage records the implementer and reviewer identities so the review boundary is visible.
 
-- **Git** (local repo required)
-- **One AI tool** on PATH: `kiro-cli`, `claude`, `opencode`, or `codex`
+For the strongest boundary, configure different providers—for example, an Anthropic-backed implementer and a Kiro- or OpenAI-backed reviewer. The reviewer evaluates the change and verification results, then returns a verdict and findings rather than silently replacing the implementation with an unreviewed commit.
 
-No GitHub account needed. No remote repo needed. Works fully local.
+Independence is one part of the trust chain, not the whole product: Selvage also performs the implementation, runs project verification, routes findings back for revision, and preserves the human gate.
 
-## Usage
+## The dashboard is the operating surface
 
-### Run a task
+Run `selvage ui` from the project and use the browser to understand what is happening without reconstructing it from terminal logs:
 
-```bash
-# Describe what you want
-selvage run "add input validation to the signup form"
+- live task state and streamed implementation activity;
+- connected AI tools and available capacity;
+- verification results and review findings;
+- approval, revision, and rejection decisions;
+- task history and evidence attached to the branch.
 
-# Work a GitHub issue (if GitHub is configured)
-selvage run 42
-
-# Run multiple issues as a batch plan
-selvage plan run 100 101 102 103
-```
-
-### Check status
-
-```bash
-selvage status
-```
-
-### Approve and merge
+The CLI remains available for automation and focused operations:
 
 ```bash
-# Review the changes
-git diff main..selvage/<task-id>
-
-# Approve (when human gate is enabled)
+selvage run "describe the change"
+selvage watch <task-id>
 selvage approve <task-id>
+selvage revise <task-id> --reason "address the concurrency edge case"
+selvage task cancel <task-id> --yes
+selvage usage <task-id>
 ```
 
-## MCP Integration
+## A real attempt receipt
 
-Use selvage as an MCP tool server with Claude Desktop, Cursor, or any MCP-compatible client:
+Selvage records usage reported by supported tools instead of estimating hypothetical savings. This is one measured production implementation attempt from task `#692`:
+
+| Receipt field | Measured value |
+| --- | ---: |
+| Implementer | Claude Haiku (Anthropic) |
+| Input tokens | 369 |
+| Cache-read tokens | 2,116,577 |
+| Output tokens | 13,932 |
+| Provider-reported cost | **$0.4095** |
+| Independent reviewer | Kiro GPT-5.6 Sol |
+| Task outcome | Approved |
+
+This is an attempt receipt, not a claim about average task cost, total reviewer spend, or projected savings. A public A/B benchmark will publish fixed prompts, repository revisions, raw transcripts, wall-clock time, verification outcomes, findings, and complete cost methodology.
+
+## Local-first, with an explicit boundary
+
+Selvage keeps orchestration, worktrees, configuration, and task evidence on your machine. It does not require a hosted Selvage control plane, upload your repository to a Selvage cloud, or add another token bill.
+
+Your configured AI CLIs still send the context they need to their respective providers under those providers' terms. “Local-first” describes where orchestration, source control, and evidence live; it does not pretend cloud-backed models run offline.
+
+Worktree isolation protects your active checkout, but it is not a security sandbox. AI tools and verification commands execute with your user permissions. Review `.selvage/config.yaml` before trusting it in an unfamiliar repository.
+
+## Evidence you can inspect
+
+Each reviewed branch includes a concise record of the work:
+
+- the implementation commit;
+- configured build and test results;
+- the independent review verdict and findings;
+- model/provider identities and usage details when available.
+
+The result is a reviewable receipt for how the branch came to exist—not a vague AI confidence score.
+
+## MCP integration
+
+Selvage can be called from Claude Code or another MCP-compatible client while the same task remains visible in the dashboard.
 
 ```json
 {
   "mcpServers": {
     "selvage": {
       "command": "selvage",
-      "args": ["mcp-server", "--repo", "/path/to/your/project"]
+      "args": ["mcp-server", "--repo", "/absolute/path/to/your/project"]
     }
   }
 }
 ```
 
 Available tools:
-- `selvage_submit_task` — submit work
-- `selvage_implement_spec` — submit a design spec for implementation
-- `selvage_status` — check task status
-- `selvage_get_evidence` — read task evidence and review results
-- `selvage_record_review` — record a supplemental review
+
+- `selvage_submit_task` — submit a coding task;
+- `selvage_implement_spec` — submit a design or implementation specification;
+- `selvage_status` — query task state;
+- `selvage_get_evidence` — retrieve verification and review evidence;
+- `selvage_record_review` — attach a supplemental review.
+
+## Install
+
+### Homebrew (macOS and Linux)
+
+<!-- RELEASE GATE: Formula/selvage.rb must contain release checksums before this README is merged. -->
+
+```bash
+brew install runselvage/selvage/selvage
+```
+
+The formula installs both `selvage` and the shorter `slv` alias.
+
+### Release archive
+
+Download the archive for your platform from [GitHub Releases](https://github.com/runselvage/selvage/releases), verify it against `checksums.txt`, and place `selvage` on your `PATH`.
+
+Published archive names follow this pattern:
+
+```text
+selvage-darwin-arm64.tar.gz
+selvage-darwin-amd64.tar.gz
+selvage-linux-arm64.tar.gz
+selvage-linux-amd64.tar.gz
+```
+
+## Requirements
+
+- Git and a local Git repository;
+- at least one supported, authenticated AI CLI on `PATH`;
+- project build/test tools required by your verification commands.
+
+Supported CLIs include Claude Code (`claude`), Codex (`codex`), Kiro CLI (`kiro-cli`), and OpenCode (`opencode`). Two independently identified models—and preferably two providers—are recommended for implementation and review.
 
 ## Configuration
 
-On first run, selvage auto-generates `.selvage/config.yaml` based on your project:
+`selvage init` writes `.selvage/config.yaml`. The setup flow derives initial build and test commands from the repository and lets you choose implementation and review tools. Configuration controls:
 
-```yaml
-version: 0.1.0
-verification:
-    checks:
-        - name: build
-          command: [go, build, ./...]
-          timeout: 2m0s
-        - name: test
-          command: [go, test, ./...]
-          timeout: 3m0s
+- implementation and review tool selection;
+- verification commands and timeouts;
+- review independence requirements;
+- human approval policy.
+
+After changing configuration, validate it and restart the project service:
+
+```bash
+selvage adapters doctor
+selvage stop
+selvage start
 ```
 
-Customize adapters, verification checks, and review policies as needed.
+## More ways to submit work
 
-## Features
+```bash
+# Natural-language request
+selvage run "add input validation to the signup form"
 
-- **Worktree isolation** — changes are made in a separate git worktree, never touching your working directory
-- **Automatic verification** — build and tests run after every implementation
-- **Cross-model review** — a different AI model reviews the implementation for correctness
-- **Plan execution** — batch multiple issues into a single aggregate branch
-- **Drift replay** — handles rebasing when the base branch moves
-- **MCP server** — integrate with any MCP-compatible AI client
+# GitHub issue number or URL
+selvage run 42
 
-## Links
+# Several issues, queued in order
+selvage run 42 43 44
+
+# Batch plan with aggregate controls
+selvage plan run 100 101 102 --max-in-flight 2
+```
+
+## Project status
+
+Selvage is under active development. Treat every generated branch as code that still requires your judgment, even when its tests and independent review pass.
 
 - Website: [selvage.run](https://selvage.run)
-- Documentation: [selvage.sh](https://selvage.sh)
+- Releases: [github.com/runselvage/selvage/releases](https://github.com/runselvage/selvage/releases)
+- Issues: [github.com/runselvage/selvage/issues](https://github.com/runselvage/selvage/issues)
 
 ## License
 
-Proprietary. See [LICENSE](LICENSE) for details.
+Proprietary.
