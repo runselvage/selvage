@@ -29,7 +29,7 @@ Selvage is an autonomous code implementation pipeline—not merely a verifier or
 - **It implements the change.** An agent works in an isolated Git worktree instead of editing your checkout.
 - **It proves what happened.** Builds, tests, commits, findings, usage, and decisions are captured as evidence.
 - **It separates implementation from review.** Reviewer identity is recorded, and same-model self-review is not treated as independent review.
-- **It uses tools you already pay for.** Bring authenticated Claude Code, Codex, Kiro CLI, or OpenCode installations; Selvage does not resell model tokens.
+- **It uses your existing AI access.** Bring authenticated Claude Code, Codex, Kiro CLI, or OpenCode installations. Selvage works through those tools; no separate Selvage model-token package is required.
 - **It leaves publication to you.** A human approval gate owns the final decision.
 
 ## Quick start
@@ -121,11 +121,11 @@ Selvage records usage reported by supported tools instead of estimating hypothet
 | Input tokens | 369 |
 | Cache-read tokens | 2,116,577 |
 | Output tokens | 13,932 |
-| Provider-reported cost | **$0.4095** |
+| Provider-reported cost (rounded) | **$0.41** |
 | Independent reviewer | Kiro GPT-5.6 Sol |
 | Task outcome | Approved |
 
-This is an attempt receipt, not a claim about average task cost, total reviewer spend, or projected savings. A public A/B benchmark will publish fixed prompts, repository revisions, raw transcripts, wall-clock time, verification outcomes, findings, and complete cost methodology.
+Cost is rounded to the nearest cent. This is an attempt receipt, not a claim about average task cost, total reviewer spend, or projected savings. A public A/B benchmark will publish fixed prompts, repository revisions, raw transcripts, wall-clock time, verification outcomes, findings, and complete cost methodology.
 
 ## Local-first, with an explicit boundary
 
