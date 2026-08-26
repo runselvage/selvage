@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 100" width="416" height="400" role="img" aria-label="Selvage">
+  <title>Selvage</title>
+  <pattern id="w1" width="5" height="5" patternUnits="userSpaceOnUse">
+    <path d="M0 1.2 H2.5 M2.5 3.7 H5" stroke="#F3F0E8" stroke-width="0.7" opacity="0.24" fill="none"></path>
+    <path d="M1.2 2.5 V5 M3.7 0 V2.5" stroke="#F3F0E8" stroke-width="0.7" opacity="0.24" fill="none"></path>
+  </pattern>
+  <path fill-rule="evenodd" fill="#C86442" d="M72 10 H34 A25 25 0 0 0 34 60 H48 V40 H34 A5 5 0 0 1 34 30 H72 Z M46 16.5 H34 A18.5 18.5 0 0 0 34 53.5 H48 V46.5 H34 A11.5 11.5 0 0 1 34 23.5 H46 Z M46.75 40 H48 V46.5 H46.75 Z M46.75 53.5 H48 V60 H46.75 Z"></path>
+  <path fill-rule="evenodd" fill="#586A92" d="M48 40 H58 A25 25 0 0 1 58 90 H20 V70 H58 A5 5 0 0 0 58 60 H48 Z M48 46.5 H58 A18.5 18.5 0 0 1 58 83.5 H46 V76.5 H58 A11.5 11.5 0 0 0 58 53.5 H48 Z M48 40 H49.25 V46.5 H48 Z M48 53.5 H49.25 V60 H48 Z"></path>
+  <path fill-rule="evenodd" fill="url(#w1)" d="M72 10 H34 A25 25 0 0 0 34 60 H58 A5 5 0 0 1 58 70 H20 V90 H58 A25 25 0 0 0 58 40 H34 A5 5 0 0 1 34 30 H72 Z M46 16.5 H34 A18.5 18.5 0 0 0 34 53.5 H58 A11.5 11.5 0 0 1 58 76.5 H46 V83.5 H58 A18.5 18.5 0 0 0 58 46.5 H34 A11.5 11.5 0 0 1 34 23.5 H46 Z M46.75 40 H49.25 V46.5 H46.75 Z M46.75 53.5 H49.25 V60 H46.75 Z"></path>
+  <rect x="86" y="10" width="14" height="80" fill="#6F8F76"></rect>
+</svg>
