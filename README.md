@@ -123,7 +123,11 @@ Selvage records usage reported by supported tools instead of estimating hypothet
 | Independent reviewer | Kiro GPT-5.6 Sol |
 | Task outcome | Approved |
 
-Cost is rounded to the nearest cent. This is an attempt receipt, not a claim about average task cost, total reviewer spend, or projected savings. A public A/B benchmark will publish fixed prompts, repository revisions, raw transcripts, wall-clock time, verification outcomes, findings, and complete cost methodology.
+Cost is rounded to the nearest cent. This is an attempt receipt, not a claim about average task cost, total task cost, or projected savings.
+
+The reviewer leg carries no dollar figure because that provider reports credits rather than cost — Selvage marks unreported fields unavailable instead of inferring them, which is why the receipt shows one leg and says so.
+
+Controlled A/B results are now published rather than promised: [Milestone 01](https://selvage.run/proof/milestone-01/) and [Milestone 02](https://selvage.run/proof/milestone-02/) compare Selvage against a hand-orchestrated baseline on a real multi-service repository, and a [method note](https://selvage.run/proof/baseline-rerun/) re-runs both arms on the same day so model progress cannot be mistaken for product progress. Those pages publish the frozen issue, the baseline commit, a preregistered evaluator and its score, per-leg costs, wall-clock time, findings, and the limits of each claim. Raw transcripts are not published.
 
 ## Local-first, with an explicit boundary
 
