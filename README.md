@@ -69,7 +69,7 @@ Selvage starts its project-scoped background service automatically; there is no 
 
 ## From request to reviewed branch
 
-[![Selvage architecture from request through implementation, verification, independent review, and human approval](assets/visuals/selvage-architecture-3200x1800.png)](assets/visuals/selvage-architecture-3200x1800.png)
+[![Selvage architecture: surfaces submit to a project-scoped scheduler; a structural code index orients an implementer working in an isolated worktree; the scheduler verifies against a plan pinned per attempt; an independent model on another provider reviews; findings either become one micro-task each or a tracked follow-up; nothing publishes without human approval](assets/visuals/selvage-architecture.svg)](assets/visuals/selvage-architecture.svg)
 
 <p align="center"><sub>Local orchestration, independent review, and a human-owned shipping decision. Click the diagram for the full-resolution view.</sub></p>
 
@@ -142,6 +142,8 @@ Each reviewed branch includes a concise record of the work:
 - the independent review verdict and findings;
 - model/provider identities and usage details when available.
 
+Usage fidelity depends on what the CLI reports. Claude Code emits machine-readable per-run totals including real cost; Kiro CLI reports credits and marks dollar and token fields unsupported; others are parsed from footers. Selvage records what a provider actually reports and marks the rest unavailable rather than inferring it, so `selvage usage` can distinguish a measured zero from an unreported one.
+
 The result is a reviewable receipt for how the branch came to exist—not a vague AI confidence score.
 
 ## MCP integration
@@ -198,6 +200,17 @@ selvage-linux-amd64.tar.gz
 
 Supported CLIs include Claude Code (`claude`), Codex (`codex`), Kiro CLI (`kiro-cli`), and OpenCode (`opencode`). Two independently identified models—and preferably two providers—are recommended for implementation and review.
 
+Authentication is per CLI, and `selvage init` verifies it rather than assuming it:
+
+| CLI | Authenticate with |
+| --- | --- |
+| `claude` | `claude login` |
+| `kiro-cli` | launch Kiro once |
+| `codex` | `codex login` |
+| `opencode` | `opencode providers login`, then confirm with `opencode providers list` |
+
+OpenCode needs one extra step, and it is the one most easily missed: a provider must be authenticated *inside* OpenCode. `opencode --version` succeeding only proves the binary runs. Setup checks `opencode providers list` and declines while nothing is authenticated, because otherwise the failure surfaces at the first lease instead of during setup. Use `opencode models` to list the fully qualified model ids—provider prefix included—that Selvage will accept.
+
 ## Configuration
 
 `selvage init` writes `.selvage/config.yaml`. The setup flow derives initial build and test commands from the repository and lets you choose implementation and review tools. Configuration controls:
@@ -207,13 +220,37 @@ Supported CLIs include Claude Code (`claude`), Codex (`codex`), Kiro CLI (`kiro-
 - review independence requirements;
 - human approval policy.
 
+Adapters can also be added without editing YAML:
+
+```bash
+selvage adapters add     # detects installed CLIs, then asks for model and role
+selvage adapters list    # what the current config resolves to
+```
+
+An adapter entry names the CLI to drive, the model to pass it, and the role it plays. `{model}` is substituted from the `model` field so the command and the model cannot drift apart, and `--completion commit` marks a role that finishes by committing—an implementer needs it, a reviewer does not:
+
+```yaml
+adapters:
+  - kind: exec
+    node-id: opencode-impl
+    role: implementer
+    provider: opencode
+    model: cloudflare-workers-ai/@cf/zai-org/glm-5.3
+    profile-id: opencode/cloudflare-workers-ai/@cf/zai-org/glm-5.3
+    command: ["opencode", "run", "--pure", "-m", "{model}"]
+    extra_flags: ["--completion", "commit", "--timeout", "30m"]
+```
+
 After changing configuration, validate it and restart the project service:
 
 ```bash
+selvage trust
 selvage adapters doctor
 selvage stop
 selvage start
 ```
+
+`selvage start` validates every configured adapter with a live prompt before accepting work, so a model that cannot answer a one-line prompt is caught there rather than three minutes into a task.
 
 ## More ways to submit work
 
