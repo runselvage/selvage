@@ -111,23 +111,22 @@ selvage usage <task-id>
 
 ## A real attempt receipt
 
-Selvage records usage reported by supported tools instead of estimating hypothetical savings. This is one measured production implementation attempt from task `#692`:
+Selvage records usage reported by supported tools instead of estimating hypothetical savings. This is one measured implementation attempt, taken from the September 2026 controlled re-run on a real multi-service repository:
 
-| Receipt field | Measured value |
-| --- | ---: |
-| Implementer | Claude Haiku (Anthropic) |
-| Input tokens | 369 |
-| Cache-read tokens | 2,116,577 |
-| Output tokens | 13,932 |
-| Provider-reported cost (rounded) | **$0.41** |
-| Independent reviewer | Kiro GPT-5.6 Sol |
-| Task outcome | Approved |
+| Receipt field | Implementer | Independent reviewer |
+| --- | ---: | ---: |
+| Model | Claude Sonnet (Anthropic) | Claude Opus (Anthropic) |
+| Input tokens | 80 | 2 |
+| Output tokens | 25,005 | 9,932 |
+| Cache-read tokens | 2,613,606 | 0 |
+| Cache-write tokens | 75,037 | 26,545 |
+| Provider-reported cost | **$1.0782** | **$0.5317** |
 
-Cost is rounded to the nearest cent. This is an attempt receipt, not a claim about average task cost, total task cost, or projected savings.
+**Total to a reviewed result: $1.6099.** One implementation attempt, approved on the first review, scoring 6/6 against an evaluator written and checksummed before the run. Review independence: cross-model.
 
-The reviewer leg carries no dollar figure because that provider reports credits rather than cost — Selvage marks unreported fields unavailable instead of inferring them, which is why the receipt shows one leg and says so.
+Both legs carry real cost here because both providers report it. Where a provider reports credits instead of dollars — Kiro does — Selvage marks the dollar and token fields unavailable rather than inferring them, and `selvage usage` shows which is which. That is the difference between a receipt and an estimate.
 
-Controlled A/B results are now published rather than promised: [Milestone 01](https://selvage.run/proof/milestone-01/) and [Milestone 02](https://selvage.run/proof/milestone-02/) compare Selvage against a hand-orchestrated baseline on a real multi-service repository, and a [method note](https://selvage.run/proof/baseline-rerun/) re-runs both arms on the same day so model progress cannot be mistaken for product progress. Those pages publish the frozen issue, the baseline commit, a preregistered evaluator and its score, per-leg costs, wall-clock time, findings, and the limits of each claim. Raw transcripts are not published.
+This is one attempt, not a claim about average task cost or projected savings. The controlled comparisons behind it are published: [Milestone 01](https://selvage.run/proof/milestone-01/) and [Milestone 02](https://selvage.run/proof/milestone-02/) put Selvage against a hand-orchestrated baseline on the same frozen issue, and a [method note](https://selvage.run/proof/baseline-rerun/) re-runs both arms on one afternoon so model progress cannot be mistaken for product progress. Those pages publish the frozen issue, the baseline commit, the preregistered evaluator and its score, per-leg costs, wall-clock time, findings, and the limits of every claim. Raw transcripts are not published.
 
 ## Local-first, with an explicit boundary
 
