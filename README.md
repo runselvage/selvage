@@ -45,7 +45,10 @@ Initialize Selvage inside a Git repository. The setup flow detects installed AI 
 ```bash
 cd /path/to/your-project
 selvage init
+selvage doctor
 ```
+
+`selvage doctor` checks everything a first task needs: config trust, adapters and their fallbacks, the verification commands at your base commit, the code index and project facts. Each failed check names its fix.
 
 Start the local web dashboard:
 
@@ -59,7 +62,7 @@ Open the printed `http://127.0.0.1:<port>` address. Leave the dashboard running,
 selvage run "add retry logic to the HTTP client with exponential backoff"
 ```
 
-`run` submits asynchronously. Follow the same task in the browser, or stream its activity in a terminal:
+`run` submits asynchronously and opens the task's page in the dashboard (`--no-browser` to skip; never over SSH or in CI). Follow it there, or stream its activity in a terminal:
 
 ```bash
 selvage watch
@@ -199,7 +202,12 @@ selvage-linux-amd64.tar.gz
 
 - Git and a local Git repository;
 - at least one supported, authenticated AI CLI on `PATH`;
-- project build/test tools required by your verification commands.
+- project build/test tools required by your verification commands;
+- for the code index:
+  - Go projects need [`scip-go`](https://github.com/sourcegraph/scip-go) on `PATH` (`go install github.com/sourcegraph/scip-go/cmd/scip-go@latest`);
+  - Python and TypeScript projects need Node.js, since their indexers are fetched with `npx` on first use.
+
+  `selvage doctor` reports what is missing.
 
 Supported CLIs include Claude Code (`claude`), Codex (`codex`), Kiro CLI (`kiro-cli`), and OpenCode (`opencode`). Two independently identified models—and preferably two providers—are recommended for implementation and review.
 
@@ -254,6 +262,47 @@ selvage start
 ```
 
 `selvage start` validates every configured adapter with a live prompt before accepting work, so a model that cannot answer a one-line prompt is caught there rather than three minutes into a task.
+
+### Fallback adapters
+
+Give each role a fallback on a different model. When every primary of a role is throttled, out of quota or disconnected, tasks move to its fallback. Without one, a task stops after the second throttle and shows the reason in `selvage inbox`, and `selvage task recover <id>` retries it.
+
+```bash
+selvage adapters add --kind kiro-acp --node-id impl-fallback --role implementer --model <model> --fallback --yes
+```
+
+`selvage doctor` warns for each role without a fallback.
+
+### Pre-assessment and decisions
+
+With `--preassess` in the implementer's `extra_flags`, the implementer writes a contract before it codes: the rules every API endpoint, UI route, CLI command, config key or package API it touches must meet, each with its source. Where the ticket leaves a choice open, Selvage decides and moves on. It does not stop to ask.
+
+When the task merges, its choices go into the decision map:
+- rules backed by the existing code are **settled**;
+- Selvage's own choices are **provisional**.
+
+The PR lists the defaults it relied on, and later tasks follow settled decisions. Manage the map with `selvage decisions list|search|show|history|confirm|supersede`. To make tasks wait for your answers instead, add `--preassess-ask`.
+
+### Memgraph (optional)
+
+Memgraph is an optional hot serving layer for the code index while a task runs. SQLite is the default and always the source of truth. **Selvage does not ship Memgraph** (it is licensed under the BSL). To use it, run it yourself with MAGE, on a port of its own:
+
+```bash
+docker pull memgraph/memgraph-mage
+docker run -d --name selvage-memgraph --restart unless-stopped -p 127.0.0.1:7688:7687 \
+  memgraph/memgraph-mage --storage-mode=IN_MEMORY_TRANSACTIONAL
+```
+
+Then point Selvage at it in `.selvage/config.yaml`, and run `selvage trust` and `selvage doctor`:
+
+```yaml
+index:
+  memgraph:
+    url: bolt://127.0.0.1:7688
+    ab: memgraph   # serve every task from Memgraph
+```
+
+Give Selvage a Memgraph of its own. It refuses one that holds other data, and falls back to SQLite with a warning rather than failing a task.
 
 ## More ways to submit work
 
