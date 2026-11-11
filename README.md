@@ -29,7 +29,7 @@ Selvage is an autonomous code implementation pipeline—not merely a verifier or
 - **It implements the change.** An agent works in an isolated Git worktree instead of editing your checkout.
 - **It proves what happened.** Builds, tests, commits, findings, usage, and decisions are captured as evidence.
 - **It separates implementation from review.** Reviewer identity is recorded, and same-model self-review is not treated as independent review.
-- **It uses your existing AI access.** Bring authenticated Claude Code, Codex, Kiro CLI, or OpenCode installations. Selvage works through those tools; no separate Selvage model-token package is required.
+- **It uses your existing AI access.** Bring an authenticated Kiro CLI (Claude Code, Codex and OpenCode adapters are [experimental](#experimental-adapters)). Selvage works through that tool; no separate Selvage model-token package is required.
 - **It leaves publication to you.** A human approval gate owns the final decision.
 
 ## Before you start
@@ -50,7 +50,7 @@ Selvage drives an AI coding CLI that is already installed and signed in on your 
    curl -fsSL https://cli.kiro.dev/install | bash
    kiro-cli login
    ```
-   Claude Code, Codex and OpenCode can be configured as well: press **Open full settings** on the setup page, or see [Configuration](#configuration).
+   Claude Code, Codex and OpenCode adapters are experimental; see [Experimental adapters](#experimental-adapters).
 
 4. **Your project's toolchain:** the language and package manager your tests already need. For example:
    - Go: `go`.
@@ -109,7 +109,7 @@ selvage ui                                       # reopen the dashboard
 
 A model saying its own patch looks correct is useful feedback, but it is not an independent control. Selvage records the implementer and reviewer identities so the review boundary is visible.
 
-For the strongest boundary, configure different providers—for example, an Anthropic-backed implementer and a Kiro- or OpenAI-backed reviewer. The reviewer evaluates the change and verification results, then returns a verdict and findings rather than silently replacing the implementation with an unreviewed commit.
+For the strongest boundary, the implementer and reviewer run different models; the guided setup gives each role its own Kiro model. The reviewer evaluates the change and verification results, then returns a verdict and findings rather than silently replacing the implementation with an unreviewed commit.
 
 Independence is one part of the trust chain, not the whole product: Selvage also performs the implementation, runs project verification, routes findings back for revision, and preserves the human gate.
 
@@ -136,7 +136,7 @@ selvage usage <task-id>
 
 ## A real attempt receipt
 
-Selvage records usage reported by supported tools instead of estimating hypothetical savings. This is one measured implementation attempt, taken from the September 2026 controlled re-run on a real multi-service repository:
+Selvage records usage reported by supported tools instead of estimating hypothetical savings. This is one measured implementation attempt, taken from the September 2026 controlled re-run on a real multi-service repository (run with the Claude Code adapter, before Kiro became the supported tool):
 
 | Receipt field | Implementer | Independent reviewer |
 | --- | ---: | ---: |
@@ -224,7 +224,7 @@ selvage-linux-amd64.tar.gz
 
 - macOS or Linux (Windows is not supported);
 - Git and a local Git repository;
-- at least one supported, authenticated AI CLI on `PATH`;
+- Kiro CLI, installed and signed in (`kiro-cli login`);
 - project build/test tools required by your verification commands;
 - for the code index:
   - Go projects need [`scip-go`](https://github.com/sourcegraph/scip-go) (`go install github.com/sourcegraph/scip-go/cmd/scip-go@latest`); Selvage finds it in Go's install directory even when that is not on `PATH`;
@@ -232,7 +232,11 @@ selvage-linux-amd64.tar.gz
 
   `selvage doctor` reports what is missing.
 
-Supported CLIs include Claude Code (`claude`), Codex (`codex`), Kiro CLI (`kiro-cli`), and OpenCode (`opencode`). Two independently identified models—and preferably two providers—are recommended for implementation and review.
+### Experimental adapters
+
+Kiro CLI is the supported tool. The guided setup, the code index, the reviewer's own checkout of the change, the tester and the checks that run during a task all work through it.
+
+Selvage can also drive Claude Code (`claude`), Codex (`codex`) and OpenCode (`opencode`), added with `selvage adapters add` or under **Open full settings** on the setup page. These adapters are experimental: they run without the code index and the tester, and their review sees only the diff. v0.4.0 has not been tested end to end with them.
 
 Authentication is per CLI, and `selvage init` verifies it rather than assuming it:
 
@@ -261,7 +265,7 @@ selvage adapters add     # detects installed CLIs, then asks for model and role
 selvage adapters list    # what the current config resolves to
 ```
 
-An adapter entry names the CLI to drive, the model to pass it, and the role it plays. `{model}` is substituted from the `model` field so the command and the model cannot drift apart, and `--completion commit` marks a role that finishes by committing—an implementer needs it, a reviewer does not:
+This example adds an experimental OpenCode implementer. An adapter entry names the CLI to drive, the model to pass it, and the role it plays. `{model}` is substituted from the `model` field so the command and the model cannot drift apart, and `--completion commit` marks a role that finishes by committing—an implementer needs it, a reviewer does not:
 
 ```yaml
 adapters:
