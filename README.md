@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start"><strong>Install Selvage</strong></a> ·
+  <a href="#before-you-start"><strong>Install Selvage</strong></a> ·
   <a href="#from-request-to-reviewed-branch"><strong>See how it works</strong></a>
 </p>
 
@@ -32,43 +32,65 @@ Selvage is an autonomous code implementation pipeline—not merely a verifier or
 - **It uses your existing AI access.** Bring authenticated Claude Code, Codex, Kiro CLI, or OpenCode installations. Selvage works through those tools; no separate Selvage model-token package is required.
 - **It leaves publication to you.** A human approval gate owns the final decision.
 
-## Quick start
+## Before you start
 
-Install from the public Homebrew tap:
+Selvage drives an AI coding CLI that is already installed and signed in on your machine. It runs your project's own build and tests. Set these up first; each step takes a minute or two.
+
+1. **A supported system:** macOS or Linux. Windows is not supported.
+
+2. **Your repository, checked out on a branch:**
+   ```bash
+   git clone <your repo> && cd <your repo>
+   git switch main          # a branch, not a detached HEAD
+   ```
+   Selvage works in its own Git worktrees and never edits your checkout. It adds `.selvage/` to `.git/info/exclude`, so `git status` stays clean.
+
+3. **Kiro CLI, installed and signed in.** Kiro is the tool the guided setup uses.
+   ```bash
+   curl -fsSL https://cli.kiro.dev/install | bash
+   kiro-cli login
+   ```
+   Claude Code, Codex and OpenCode can be configured as well: press **Open full settings** on the setup page, or see [Configuration](#configuration).
+
+4. **Your project's toolchain:** the language and package manager your tests already need. For example:
+   - Go: `go`.
+   - Python: `python3`, plus `uv` or Poetry if your project uses one (a `uv.lock` or `poetry.lock`), so tests run the way your project runs them. Setup gives you the exact `venv` and `pip install` commands if the environment is missing.
+   - Node: `node` and `npm`. Setup asks you to run `npm ci` if `node_modules` is missing.
+
+   Selvage gates every change on your tests, so they should pass on your current commit. If they don't, setup shows the failure and lets you start without tests.
+
+5. **For the code index** (recommended; Selvage works without it):
+   - Python and TypeScript: Node.js on `PATH`, because the indexers are fetched with `npx` on first use.
+   - Go: `go install github.com/sourcegraph/scip-go/cmd/scip-go@latest`. Selvage finds it in Go's install directory even when that is not on your `PATH`.
+
+6. **Optional:**
+   - GitHub CLI, signed in (`gh auth login`), to run tasks from issue numbers (`selvage run 42`) and to open pull requests.
+   - Memgraph, a faster index while tasks run; see [Memgraph](#memgraph-optional).
+
+## Quick start
 
 ```bash
 brew install runselvage/selvage/selvage
-```
-
-Initialize Selvage inside a Git repository. The setup flow detects installed AI tools, helps select implementation and review tools, and proposes project-specific verification commands.
-
-```bash
 cd /path/to/your-project
 selvage init
-selvage doctor
 ```
 
-`selvage doctor` checks everything a first task needs: config trust, adapters and their fallbacks, the verification commands at your base commit, the code index and project facts. Each failed check names its fix.
+`selvage init` detects your project's language, test command and installed AI tools, writes `.selvage/config.yaml`, and opens the setup page in your browser. The page checks each item above in turn and shows the exact command for anything missing. When everything is green, write your first task there, or let Selvage suggest one. You approve the result before it merges.
 
-Start the local web dashboard:
+`slv` is a short alias for `selvage`.
+
+### From the terminal
+
+Once setup is green you can also work from the terminal:
 
 ```bash
-selvage ui
+selvage doctor                                   # recheck what a first task needs
+selvage run "add retry logic to the HTTP client"  # submit a change
+selvage watch                                    # follow it in the terminal
+selvage ui                                       # reopen the dashboard
 ```
 
-Open the printed `http://127.0.0.1:<port>` address. Leave the dashboard running, then submit work from another terminal:
-
-```bash
-selvage run "add retry logic to the HTTP client with exponential backoff"
-```
-
-`run` submits asynchronously and opens the task's page in the dashboard (`--no-browser` to skip; never over SSH or in CI). Follow it there, or stream its activity in a terminal:
-
-```bash
-selvage watch
-```
-
-Selvage starts its project-scoped background service automatically; there is no daemon ceremony in the normal workflow.
+`run` submits asynchronously and opens the task's page in the dashboard (`--no-browser` to skip; never over SSH or in CI). Selvage starts its project-scoped background service automatically; there is no daemon ceremony in the normal workflow.
 
 ## From request to reviewed branch
 
@@ -200,11 +222,12 @@ selvage-linux-amd64.tar.gz
 
 ## Requirements
 
+- macOS or Linux (Windows is not supported);
 - Git and a local Git repository;
 - at least one supported, authenticated AI CLI on `PATH`;
 - project build/test tools required by your verification commands;
 - for the code index:
-  - Go projects need [`scip-go`](https://github.com/sourcegraph/scip-go) on `PATH` (`go install github.com/sourcegraph/scip-go/cmd/scip-go@latest`);
+  - Go projects need [`scip-go`](https://github.com/sourcegraph/scip-go) (`go install github.com/sourcegraph/scip-go/cmd/scip-go@latest`); Selvage finds it in Go's install directory even when that is not on `PATH`;
   - Python and TypeScript projects need Node.js, since their indexers are fetched with `npx` on first use.
 
   `selvage doctor` reports what is missing.
@@ -216,7 +239,7 @@ Authentication is per CLI, and `selvage init` verifies it rather than assuming i
 | CLI | Authenticate with |
 | --- | --- |
 | `claude` | `claude login` |
-| `kiro-cli` | launch Kiro once |
+| `kiro-cli` | `kiro-cli login` |
 | `codex` | `codex login` |
 | `opencode` | `opencode providers login`, then confirm with `opencode providers list` |
 
